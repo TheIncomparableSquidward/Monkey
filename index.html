@@ -163,10 +163,11 @@
 				load()
 				setInterval(function()
 					{	
-						if(rsrc[susp] > 0)
+						if(rsrc[susp] > 0 && bool[empl])
 						{
 							rsrc[susp] -= 4 * rsrc[dtcv]
 							rsrc[evid] += rsrc[dtcv]
+							set("evidence", rsrc[evid] + " Evidence")
 						}
 						
 						if (bool[goss2])
@@ -177,6 +178,7 @@
 								rsrc[info] += tmp
 								rsrc[evid] -= tmp * 10
 								gossRate++
+								set("spread", rsrc[info] + " Informees")
 							}
 						}
 						
@@ -187,8 +189,8 @@
 						
 						maxSusp = 100 + 100 * rsrc[info]
 						incSusp(rsrc[info])
-						set("spread", rsrc[info] + " Informees")
-						set("evidence", rsrc[evid] + " Evidence")
+						
+						
 						save()
 					}, 1000)
 			}
@@ -200,7 +202,7 @@
 			
 			function addButton(func, buttName, id)
 			{
-				document.getElementById("left").innerHTML += "<button type='button' onclick='" + func + "()'>" + buttName + "</button> <p id='"+ id + "'></p>"
+				document.getElementById("left").innerHTML += "<button type='button' onclick='" + func + "()'>" + buttName + "</button> <p id='"+ id + "' style='margin-bottom: 30px'></p>"
 			}
 			
 			function incSusp(amount)
@@ -227,7 +229,7 @@
 			<button type="button" onclick="raise()" style="display: block;">
 				Raise Suspicion
 			</button>
-			<p id="suspicion" style="margin-top: 10px"></p>
+			<p id="suspicion" style="margin-bottom: 30px"></p>
 		</div>
 		<div id="right" style="width: 50%; display: inline; height: 100%">
 			
