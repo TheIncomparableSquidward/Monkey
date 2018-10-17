@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Monkey</title>
+		<link rel="icon" href="suspicion.png" />
+		<script type="text/javascript" src="javascript1.js"></script>
+		<script>
+			
+			var susp = 0
+			var evid = 1
+			var info = 2
+			var dtcv = 3
+			var prof = 4
+			
+			var rsrc = [0, 0, 0, 0, 0]
+			
+			var gath = 0
+			var sprd = 1
+			var hireE = 2
+			var hireI = 3
+			var hireS = 4
+			var goss = 5
+			var provS = 6
+			var provE = 7
+			var provD = 8
+			var acc = 9
+			
+			var cost = [10, 5, 15, 2, 500, 1000, 1000, 500, 10, 10]
+			
+			var gthr = 0
+			var spr = 1
+			var empl = 2
+			var goss1 = 3
+			var goss2 = 4
+			var find = 5
+			var acus = 6
+			
+			var bool = [false, false, false, false, false, false, false]
+			
+			var gossRate = 100
+			var maxSusp = 100
+			
+			function raise()
+			{
+				incSusp(1)
+				
+				if (rsrc[susp] == 100 && !bool[gthr])
+				{
+					addgath()
+				}
+			}
+			
+			function gather()
+			{
+				if (rsrc[susp] >= cost[gath])
+				{
+					rsrc[evid]++
+					rsrc[susp] -= cost[gath]
+					
+					set("evidence", rsrc[evid] + " Evidence")
+					set("suspicion", rsrc[susp] + "% Suspicion")
+				}
+				
+				if (rsrc[evid] == 15 && !bool[sprd])
+				{
+					addsprd()
+				}
+			}
+			
+			function spread()
+			{
+				if (rsrc[evid] >= cost[spr])
+				{
+					rsrc[evid] -= cost[spr]
+					rsrc[info]++
+					set("spread", rsrc[info] + " Informees")
+					set("evidence", rsrc[evid] + " Evidence")
+				}
+				
+				if (rsrc[info] == 30 && !bool[empl])
+				{
+					adddtcv()
+				}
+			}
+			
+			function employ()
+			{
+				if (rsrc[info] >= cost[hireI] && rsrc[evid] >= cost[hireE] && rsrc[susp] >= cost[hireS])
+				{
+					rsrc[evid] -= cost[hireE]
+					rsrc[info] -= cost[hireI]
+					incSusp(-cost[hireS])
+					rsrc[dtcv]++
+					set("detectives", rsrc[dtcv] + " Detectives")
+					set("spread", rsrc[info] + " Informees")
+					set("evidence", rsrc[evid] + " Evidence")
+				}
+				
+				if (rsrc[evid] >= 100 && !bool[goss1])
+				{
+					addgoss1()
+				}
+			}
+			
+			function enableGoss()
+			{
+				if (rsrc[evid] >= cost[goss])
+				{
+					addgoss2()
+					rsrc[evid] -= cost[goss]
+					set("evidence", rsrc[evid] + " Evidence")
+				}
+			}
+			
+			function gossTog()
+			{
+				bool[goss2] = !bool[goss2]
+				
+				if(bool[goss2])
+				{
+					set("gossTog", "ACTIVE")
+				}
+				else
+				{
+					set("gossTog", "INACTIVE")
+				}
+			}
+			
+			function prove()
+			{	
+				if (rsrc[evid] >= cost[provE] && rsrc[dtcv] >= cost[provD] && rsrc[susp] >= cost[provS])
+				{
+					rsrc[susp] -= cost[provS]
+					rsrc[evid] -= cost[provE]
+					rsrc[dtcv] -= cost[provD]
+					rsrc[prof]++
+					set("proof", rsrc[prof] + " Proof")
+					set("evidence", rsrc[evid] + " Evidence")
+					set("detectives", rsrc[dtcv] + " Detectives")
+					set("suspicion", rsrc[susp] + "% Suspicion")
+				}
+				
+				if(rsrc[prof] == 10 && !bool[acus])
+				{
+					bool[acus] = true
+					document.getElementById("right").innerHTML += "<button type='button' style='display: block;' onclick='accuse()'>ACCUSE HIM</button>"
+					set("notes", "Your hard work has paid off. The pieces are falling</br>into place. Now complete your mission and accuse this man.")
+				}
+			}
+			
+			function accuse()
+			{
+				if (rsrc[prof] >= cost[acc])
+				{
+					rsrc[prof] -= cost[acc]
+					set("notes", "So you were right! This causes you to wonder who</br>ELSE might seem similarly suspicions...")
+					set("proof", rsrc[prof] + " Proof")
+				}	
+			}
+			
+			function update()
+			{
+				load()
+				setInterval(function()
+					{	
+						if(rsrc[susp] > 0)
+						{
+							rsrc[susp] -= 4 * rsrc[dtcv]
+							rsrc[evid] += rsrc[dtcv]
+						}
+						
+						if (bool[goss2])
+						{
+							var tmp = Math.round(rsrc[info] / gossRate)
+							if (rsrc[evid] >= tmp * 10)
+							{
+								rsrc[info] += tmp
+								rsrc[evid] -= tmp * 10
+								gossRate++
+							}
+						}
+						
+						if (rsrc[info] >= 500 && bool[goss1] && !bool[find])
+						{
+							addprof()
+						}
+						
+						maxSusp = 100 + 100 * rsrc[info]
+						incSusp(rsrc[info])
+						set("spread", rsrc[info] + " Informees")
+						set("evidence", rsrc[evid] + " Evidence")
+						save()
+					}, 1000)
+			}
+			
+			function set(item, words)
+			{
+				document.getElementById(item).innerHTML = words
+			}
+			
+			function addButton(func, buttName, id)
+			{
+				document.getElementById("left").innerHTML += "<button type='button' onclick='" + func + "()'>" + buttName + "</button> <p id='"+ id + "'></p>"
+			}
+			
+			function incSusp(amount)
+			{
+				if (rsrc[susp] <= maxSusp - amount)
+					{
+						rsrc[susp] += amount
+						set("suspicion", rsrc[susp] + "% Suspicion")	
+					}
+					else
+					{
+						rsrc[susp] = maxSusp
+						set("suspicion", rsrc[susp] + "% Suspicion")
+					}
+			}
+
+		</script>
+	</head>
+	<body onLoad="update()">
+		<div id="left" style="width: 50%; display: inline; height: 100%">
+			<div id="notes" style="height: 60px;"> All is normal in the world. But one day, <br/>
+				you see your neighbor bringing in an unusual<br/>
+				amount of bananas with the groceries. You grow suspicious.</div>
+			<button type="button" onclick="raise()" style="display: block;">
+				Raise Suspicion
+			</button>
+			<p id="suspicion" style="margin-top: 10px"></p>
+		</div>
+		<div id="right" style="width: 50%; display: inline; height: 100%">
+			
+		</div>
+	</body>
+</html>
