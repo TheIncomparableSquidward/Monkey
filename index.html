@@ -38,7 +38,20 @@
 			var bool = [false, false, false, false, false, false, false]
 			
 			var gossRate = 100
+			var gossip = 0
 			var maxSusp = 100
+			
+			var Fnames = ["Wife", "Ex-Wife", "Girlfriend", "Sister", "Mother", "Daughter", "Aunt", "Grandmother"]
+			var fNoExcl = ["Sister", "Mother", "Daughter", "Aunt", "Grandmother"]
+			var Mnames = ["Husband", "Ex-Husband", "Boyfriend", "Brother", "Father", "Son", "Uncle", "Grandfather"]
+			var mNoExcl = ["Brother", "Father", "Son", "Uncle", "Grandfather"]
+			var Nnames = ["Cousin", "Friend", "Coworker", "Neighbor", "Roommate", "Boss", "Distant Relative", "Landlord", "Classmate", "Role Model", "Manager", "Colleague", "Cellmate", "Mentor", "Personal Trainer", "Coach", "Doctor", "Therapist", "Drug Dealer", "Teacher", "Professor", "Butler", "Waiter", "Hairdresser", "Barber", "Stock Broker"]
+			var lastF = false
+			var lastM = true
+			var nameList = "Accuse Your Neighbor"
+			
+			var names1 = Fnames
+			var names2 = mNoExcl
 			
 			function raise()
 			{
@@ -142,9 +155,7 @@
 				
 				if(rsrc[prof] == 10 && !bool[acus])
 				{
-					bool[acus] = true
-					document.getElementById("right").innerHTML += "<button type='button' style='display: block;' onclick='accuse()'>ACCUSE HIM</button>"
-					set("notes", "Your hard work has paid off. The pieces are falling</br>into place. Now complete your mission and accuse this man.")
+					addacc()
 				}
 			}
 			
@@ -155,6 +166,9 @@
 					rsrc[prof] -= cost[acc]
 					set("notes", "So you were right! This causes you to wonder who</br>ELSE might seem similarly suspicions...")
 					set("proof", rsrc[prof] + " Proof")
+					nameList += nextAccusation()
+					set("accuse", nameList)
+					cost[acc] = 5
 				}	
 			}
 			
@@ -172,11 +186,11 @@
 						
 						if (bool[goss2])
 						{
-							var tmp = Math.round(rsrc[info] / gossRate)
-							if (rsrc[evid] >= tmp * 10)
+							gossip = Math.round(rsrc[info] / gossRate)
+							if (rsrc[evid] >= gossip * 10)
 							{
-								rsrc[info] += tmp
-								rsrc[evid] -= tmp * 10
+								rsrc[info] += gossip
+								rsrc[evid] -= gossip * 10
 								gossRate++
 								set("spread", rsrc[info] + " Informees")
 							}
@@ -218,10 +232,60 @@
 						set("suspicion", rsrc[susp] + "% Suspicion")
 					}
 			}
+			
+			function nextAccusation()
+			{
+				if (lastF)
+				{
+					names1 = mNoExcl
+				}
+				else if (lastM)
+				{
+					names2 = fNoExcl
+				}
+				else
+				{
+					names1 = Fnames
+					names2 = Mnames
+				}
+				
+				
+				return "'s " + accu(names1, names2, Nnames)
+			}
+			
+			function accu(list1, list2, list3)
+			{
+				var len1 = arguments[0].length
+				var len2 = list2.length
+				var len3 = list3.length
+				var val = null
+				
+				var tmp = Math.floor(Math.random() * (len1 + len2 + len3))
+				
+				if (tmp < len1)
+				{
+					val = list1[tmp]
+					lastF = true
+				}
+				else if (tmp < len1 + len2)
+				{
+					val = list2[tmp - len1]
+					lastM = true
+				}
+				else
+				{
+					val = list3[tmp - len1 - len2]
+					
+					lastM = false
+					lastF = false
+				}
+				
+				return val
+			}
 
 		</script>
 	</head>
-	<body onLoad="update()">
+	<body onLoad="update();">
 		<div id="left" style="width: 50%; display: inline; height: 100%">
 			<div id="notes" style="height: 60px;"> All is normal in the world. But one day, <br/>
 				you see your neighbor bringing in an unusual<br/>
@@ -229,7 +293,7 @@
 			<button type="button" onclick="raise()" style="display: block;">
 				Raise Suspicion
 			</button>
-			<p id="suspicion" style="margin-bottom: 30px"></p>
+			<p id="suspicion" style="margin-top: 10px; margin-bottom: 30px" ></p>
 		</div>
 		<div id="right" style="width: 50%; display: inline; height: 100%">
 			

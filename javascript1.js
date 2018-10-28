@@ -68,17 +68,31 @@ function check()
 				if (bool[goss2])
 				{
 					addgoss2()
+					
+					cont()
 				}
 				else if (bool[goss1])
 				{
 					addgoss1()
+					
+					cont()
 				}
 				
-				if (bool[prof])
-				{
-					addprof()
-				}
+				
 			}
+		}
+	}
+}
+
+function cont()
+{
+	if(bool[find])
+	{
+		addprof()
+		
+		if (bool[acus])
+		{
+			addacc()
 		}
 	}
 }
@@ -125,5 +139,12 @@ function addprof()
 	addButton("prove", "Find Proof", "proof")
 	set("notes", "This mere suspicion seems to be turning</br>into some rock-solid proof.")
 	set("proof", rsrc[prof] + " Proof")
+}
+
+function addacc()
+{
+	bool[acus] = true
+	document.getElementById("right").innerHTML += "<button type='button' style='display: block;' id='accuse' onclick='accuse()'>Accuse Your Neighbor</button>"
+	set("notes", "Your hard work has paid off. The pieces are falling</br>into place. Now complete your mission and accuse this man.")
 }
 
