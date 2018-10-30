@@ -8,6 +8,7 @@ function save()
 	saveloop(rsrc, resources)
 	saveloop(cost, costs)
 	saveloop(bool, bools)
+	localStorage.setItem("names", nameList)
 }
 
 function load()
@@ -22,6 +23,7 @@ function load()
 	
 	loadints(rsrc, resources)
 	loadints(cost, costs)
+	nameList = localStorage.getItem("names")
 	check()
 }
 
@@ -93,6 +95,7 @@ function cont()
 		if (bool[acus])
 		{
 			addacc()
+			set("accuse", nameList)
 		}
 	}
 }
